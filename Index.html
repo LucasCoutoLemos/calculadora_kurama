@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Financeira Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat:wght@700&display=swap');
+
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #10b981;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        h2 { margin: 0 0 1.5rem 0; font-size: 1.5rem; text-align: center; color: var(--text-main); }
+
+        .field { margin-bottom: 1.25rem; }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 0.8rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-container input {
+            width: 1.1rem;
+            height: 1.1rem;
+            margin-right: 0.8rem;
+            accent-color: var(--primary);
+        }
+
+        .results {
+            margin-top: 1.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1.25rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .result-item:last-child { margin-bottom: 0; }
+
+        .result-label { color: var(--text-dim); font-size: 0.85rem; }
+
+        .result-value { font-weight: 700; color: var(--accent); }
+
+        #btnEnviar {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #btnEnviar:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        .signature {
+            display: block;
+            text-align: right;
+            margin-top: 1.5rem;
+            font-family: 'Caveat', cursive;
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            opacity: 0.8;
+            transition: 0.3s;
+        }
+
+        .signature:hover { color: var(--primary); opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Calculadora Lavagem Kurama</h2>
+
+    <div class="field">
+        <label>Valor Bruto</label>
+        <input type="text" id="valorInput" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
+    </div>
+
+    <div class="field">
+        <label class="checkbox-container">
+            <input type="checkbox" id="parceriaCheck" onchange="atualizarMenu()">
+            <span>Parceria?</span>
+        </label>
+    </div>
+
+    <div class="field">
+        <label>Porcentagem</label>
+        <select id="porcentagemSelect" onchange="calcular()"></select>
+    </div>
+
+    <div class="results">
+        <div class="result-item">
+            <span class="result-label">Quanto pagar</span>
+            <span class="result-value" id="quantoPagar" style="color: #f8fafc;">R$ 0,00</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">Quanto depositar no painel</span>
+            <span class="result-value" id="quantoDepositar">R$ 0,00</span>
+        </div>
+    </div>
+
+    <button id="btnEnviar" onclick="enviarParaNotion()">Enviar para o Notion</button>
+
+    <span class="signature">By: Eazy</span>
+</div>
+
+<script>
+    const valorInput = document.getElementById('valorInput');
+    const parceriaCheck = document.getElementById('parceriaCheck');
+    const porcentagemSelect = document.getElementById('porcentagemSelect');
+    const btnEnviar = document.getElementById('btnEnviar');
+
+    function mascaraMoeda(i) {
+        let v = i.value.replace(/\D/g, '');
+        v = (v / 100).toFixed(2) + '';
+        v = v.replace(".", ",");
+        v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+        v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+        i.value = v !== "0,00" ? "R$ " + v : "";
+        calcular();
+    }
+
+    function obterValorPuro(texto) {
+        if (!texto) return 0;
+        // Remove R$, pontos de milhar e troca vírgula por ponto para virar número real
+        let limpo = texto.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
+        return parseFloat(limpo) || 0;
+    }
+
+    function atualizarMenu() {
+        const isParceria = parceriaCheck.checked;
+        porcentagemSelect.innerHTML = "";
+        const opcoes = isParceria ? [20, 25] : [30, 35];
+
+        opcoes.forEach(pct => {
+            let option = document.createElement("option");
+            option.value = pct;
+            option.text = pct + "%";
+            porcentagemSelect.appendChild(option);
+        });
+        calcular();
+    }
+
+    function calcular() {
+        const valor = obterValorPuro(valorInput.value);
+        const porcentagem = parseFloat(porcentagemSelect.value) / 100;
+
+        const vPagar = valor - (valor * porcentagem);
+        const vDepositar = (valor * porcentagem) - (valor * 0.04);
+
+        document.getElementById('quantoPagar').innerText = vPagar.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+        document.getElementById('quantoDepositar').innerText = vDepositar.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+    }
+
+    async function enviarParaNotion() {
+        const valorOriginal = obterValorPuro(valorInput.value);
+        if(valorOriginal <= 0) return alert("Insira um valor válido.");
+
+        btnEnviar.innerText = "Enviando...";
+        btnEnviar.disabled = true;
+
+        // Aqui convertemos as strings dos resultados de volta para Números Decimais
+        const dados = {
+            valor: valorOriginal, 
+            porcentagem: parseFloat(porcentagemSelect.value),
+            parceria: parceriaCheck.checked ? "Sim" : "Não",
+            pagar: obterValorPuro(document.getElementById('quantoPagar').innerText),
+            depositar: obterValorPuro(document.getElementById('quantoDepositar').innerText)
+        };
+
+        try {
+            const URL_WEBHOOK = "https://hook.us2.make.com/h1uv8ivdc1uf8r4hefewx32o9r5nd4mj"; 
+            
+            await fetch(URL_WEBHOOK, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+
+            alert("Sucesso! Registro enviado como número.");
+        } catch (e) {
+            alert("Erro ao enviar. Verifique o Webhook.");
+        } finally {
+            btnEnviar.innerText = "Enviar para o Notion";
+            btnEnviar.disabled = false;
+        }
+    }
+
+    atualizarMenu();
+</script>
+
+</body>
+</html>
