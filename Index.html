@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Lavagem Kurama</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat:wght@700&display=swap');
+
+:root {
+    --primary: #dc2626; /* Vermelho Japonês */
+    --primary-hover: #b91c1c;
+    --bg-overlay: rgba(42, 15, 15, 0.9);
+    --card-bg: rgba(27, 0, 0, 0.87); /* Transparência para o fundo aparecer */
+    --text-main: #f8fafc;
+    --text-dim: #cbd5e1;
+    --accent: #10b981; /* Mantém o verde para valores positivos ou mude para branco */
+    --border: rgba(220, 38, 38, 0.651); /* Borda vermelha sutil */
+}
+
+body {
+    background-image: url('https://i.postimg.cc/fWFvsNqj/unnamed-(3).jpg');
+    background-repeat: repeat;
+    background-size: 900px; /* Ajuste o tamanho do padrão aqui */
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px); /* Efeito de vidro */
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    width: 100%;
+    max-width: 420px;
+}
+
+        h2 { margin: 0 0 1.5rem 0; font-size: 1.5rem; text-align: center; color: var(--text-main) }
+
+        .field { margin-bottom: 1rem; }
+
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #2a0f0f;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        textarea { resize: none; height: 60px; }
+
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 70, 70, 0.2);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            background: rgba(42, 15, 15, 0.4);
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-container input {
+            width: 1.1rem;
+            height: 1.1rem;
+            margin-right: 0.8rem;
+            accent-color: var(--primary);
+        }
+
+        .results {
+            margin-top: 1.5rem;
+            background: rgba(42, 15, 15, 0.6);
+            padding: 1.25rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-item:last-child { margin-bottom: 0; }
+
+        .result-label { color: var(--text-dim); font-size: 0.85rem; }
+
+        .result-value { font-weight: 700; color: var(--accent); }
+
+        #btnEnviar {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #btnEnviar:hover { background: var(--primary-hover); }
+
+        .signature {
+            display: block;
+            text-align: right;
+            margin-top: 1rem;
+            font-family: 'Caveat', cursive;
+            font-size: 1.2rem;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Lavagem Kurama</h2>
+
+    <div class="field">
+        <label>Quem Lavou</label>
+        <select id="membroSelect">
+            <option value="">Selecione o membro...</option>
+            <option value="Pokas">Pokas</option>
+            <option value="Eazy">Eazy</option>
+            <option value="Tuga">Tuga</option>
+        </select>
+    </div>
+
+    <div class="field">
+        <label>Valor Bruto</label>
+        <input type="text" id="valorInput" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
+    </div>
+
+    <div class="field">
+        <label class="checkbox-container">
+            <input type="checkbox" id="parceriaCheck" onchange="atualizarMenu()">
+            <span>Parceria?</span>
+        </label>
+    </div>
+
+    <div class="field">
+        <label>Porcentagem</label>
+        <select id="porcentagemSelect" onchange="calcular()"></select>
+    </div>
+
+    <div class="field">
+        <label>Observação (Opcional)</label>
+        <textarea id="obsInput" placeholder="Detalhes adicionais..."></textarea>
+    </div>
+
+    <div class="results">
+        <div class="result-item">
+            <span class="result-label">Quanto pagar</span>
+            <span class="result-value" id="quantoPagar" style="color: #f8fafc;">R$ 0,00</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">Depositar no painel</span>
+            <span class="result-value" id="quantoDepositar">R$ 0,00</span>
+        </div>
+    </div>
+
+    <button id="btnEnviar" onclick="enviarParaNotion()">Enviar para o Notion</button>
+    <span class="signature">By: Eazy</span>
+</div>
+
+<script>
+    const valorInput = document.getElementById('valorInput');
+    const parceriaCheck = document.getElementById('parceriaCheck');
+    const porcentagemSelect = document.getElementById('porcentagemSelect');
+    const membroSelect = document.getElementById('membroSelect');
+    const obsInput = document.getElementById('obsInput');
+    const btnEnviar = document.getElementById('btnEnviar');
+
+    function mascaraMoeda(i) {
+        let v = i.value.replace(/\D/g, '');
+        v = (v / 100).toFixed(2) + '';
+        v = v.replace(".", ",");
+        v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+        v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+        i.value = v !== "0,00" ? "R$ " + v : "";
+        calcular();
+    }
+
+    function obterValorPuro(texto) {
+        if (!texto) return 0;
+        let limpo = texto.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
+        return parseFloat(limpo) || 0;
+    }
+
+    function atualizarMenu() {
+        const isParceria = parceriaCheck.checked;
+        porcentagemSelect.innerHTML = "";
+        const opcoes = isParceria ? [20, 25] : [30, 35];
+        opcoes.forEach(pct => {
+            let option = document.createElement("option");
+            option.value = pct;
+            option.text = pct + "%";
+            porcentagemSelect.appendChild(option);
+        });
+        calcular();
+    }
+
+    function calcular() {
+        const valor = obterValorPuro(valorInput.value);
+        const porcentagem = parseFloat(porcentagemSelect.value) / 100;
+        const vPagar = valor - (valor * porcentagem);
+        const vDepositar = (valor * porcentagem) - (valor * 0.04);
+
+        document.getElementById('quantoPagar').innerText = vPagar.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+        document.getElementById('quantoDepositar').innerText = vDepositar.toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+    }
+
+    async function enviarParaNotion() {
+        const valorBruto = obterValorPuro(valorInput.value);
+        if(!membroSelect.value) return alert("Por favor, selecione quem lavou.");
+        if(valorBruto <= 0) return alert("Insira um valor válido.");
+
+        btnEnviar.innerText = "Enviando...";
+        btnEnviar.disabled = true;
+
+        // Lógica da observação: se estiver vazio ou apenas espaços, envia "Nenhuma"
+        const obsFinal = obsInput.value.trim() === "" ? "Nenhuma" : obsInput.value;
+
+        const dados = {
+            membro: membroSelect.value,
+            valor_bruto: valorBruto,
+            porcentagem: parseFloat(porcentagemSelect.value),
+            parceria: parceriaCheck.checked ? "Sim" : "Não",
+            pagar: obterValorPuro(document.getElementById('quantoPagar').innerText),
+            depositar: obterValorPuro(document.getElementById('quantoDepositar').innerText),
+            observacao: obsFinal,
+            data_envio: new Date().toISOString()
+        };
+
+        try {
+            const URL_WEBHOOK = "https://hook.us2.make.com/h1uv8ivdc1uf8r4hefewx32o9r5nd4mj"; 
+            const response = await fetch(URL_WEBHOOK, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+
+            if(response.ok) {
+                alert("Registro enviado com sucesso!");
+                valorInput.value = "";
+                obsInput.value = "";
+                calcular();
+            }
+        } catch (e) {
+            alert("Erro de conexão.");
+        } finally {
+            btnEnviar.innerText = "Enviar para o Notion";
+            btnEnviar.disabled = false;
+        }
+    }
+
+    atualizarMenu();
+</script>
+
+</body>
+</html>
